@@ -1,47 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
-        #embed-container {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fetch and Embed</title>
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        background-color: #000;
+    }
+    #embed-container {
+        width: 100%;
+        height: 100%;
+    }
+</style>
 </head>
 <body>
-    <div id="embed-container"></div>
+<div id="embed-container">Loading...</div>
 
-    <script>
-        // URL of your raw HTML file
-        const url = "https://raw.githubusercontent.com/code-andrewy/jumpman64beta/main/Froggy.html";
+<script>
+const url = "https://raw.githubusercontent.com/code-andrewy/jumpman64beta/main/Froggy.html";
 
-        fetch(url)
-            .then(response => response.text())
-            .then(html => {
-                const container = document.getElementById('embed-container');
-                container.innerHTML = html;
+fetch(url)
+  .then(response => response.text())
+  .then(html => {
+    const container = document.getElementById('embed-container');
+    container.innerHTML = html;
 
-                // Optional: Execute scripts from fetched HTML
-                container.querySelectorAll('script').forEach(oldScript => {
-                    const newScript = document.createElement('script');
-                    if (oldScript.src) {
-                        newScript.src = oldScript.src;
-                    } else {
-                        newScript.textContent = oldScript.textContent;
-                    }
-                    document.body.appendChild(newScript);
-                });
-            })
-            .catch(err => console.error('Failed to load HTML:', err));
-    </script>
+    // Execute scripts in order
+    const scripts = container.querySelectorAll('script');
+    scripts.forEach(script => {
+      const newScript = document.createElement('script');
+      if (script.src) {
+        newScript.src = script.src;
+      } else {
+        newScript.textContent = script.textContent;
+      }
+      document.body.appendChild(newScript);
+      script.remove();
+    });
+  })
+  .catch(err => {
+    console.error('Failed to load HTML:', err);
+    document.getElementById('embed-container').textContent = "Failed to load content.";
+  });
+</script>
 </body>
 </html>
